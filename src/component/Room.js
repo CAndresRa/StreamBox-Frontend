@@ -1,13 +1,14 @@
 import React, {Component} from 'react';
-import SockJsClient from 'react-stomp';
+import { Youtube } from './Youtube';
 
-class ChatComponent extends Component {
+export class Room extends Component{
   render() {
    return (
      <div >
        <div>
-         <YouTube />
+         <Youtube />
        </div>
      </div>
    );
+ }
 }

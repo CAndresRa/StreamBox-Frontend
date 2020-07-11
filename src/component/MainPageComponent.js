@@ -19,6 +19,9 @@ export class MainPageComponent extends Component {
   handleSubmit(event) {
     event.preventDefault();
     console.log("click");
+    console.log("click");
+    const { history } = this.props;
+    history.push('/room/' + this.state.roomName);
   }
 
   handleChangeUsername(event){

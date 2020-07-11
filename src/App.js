@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import {BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom';
 import './App.css';
 import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
 import { Youtube } from './component/Youtube';
 import { MainPageComponent } from './component/MainPageComponent';
+import { Room } from './component/Room';
 
 
 class App extends Component {
@@ -14,22 +15,14 @@ class App extends Component {
 
     render(){
     const MainPageComponentView = () => <MainPageComponent />;
-  const YoutubeView = () => <Youtube />;
+    const YoutubeView = () => <Youtube />;
 
     return (
       <Router>
-        <div className="App">
-          <Route
-            exact
-            path="/"
-            component={MainPageComponentView}
-          />
-          <Route
-            exact
-            path="/video"
-            component={YoutubeView}
-          />
-        </div>
+        <Switch>
+          <Route path="/" exact={true} component = {MainPageComponent}/>
+          <Route path="/room/:id" exact={true} component={Room} />
+        </Switch>
       </Router>
     );
   }
