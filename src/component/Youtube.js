@@ -4,12 +4,15 @@ import { Form, Input, Button } from 'reactstrap';
 import axios from 'axios';
 import SockJs from 'sockjs-client';
 import Stomp from 'stompjs';
+
+var   stompClient = null;
+
 export class Youtube extends Component {
 
   constructor(props){
     super(props)
     this.state = {
-      videoId : ''
+      videoId : '',
     }
     this.handleChangeVideoId = this.handleChangeVideoId.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -22,16 +25,16 @@ export class Youtube extends Component {
   }
 
   connect() {
-    var stompClient = null;
     var socket = new SockJs('http://localhost:8080/websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/topic/video.hola', function (eventBody) {
-            var obj = (JSON.parse(eventBody.body));
+        var roomName = window.location.pathname.split("/")[2];
+        stompClient.subscribe('/topic/video.' + roomName, function (eventBody) {
+            //var obj = (JSON.parse(eventBody.body));
         });
     });
-}
+  }
 
   getCurrentTime(event){
     event.target.getCurrentTime();
@@ -49,8 +52,11 @@ export class Youtube extends Component {
   //  2 - paused (en pausa)
   //  3 - buffering (almacenando en búfer)
   videoOnStateChange(event){
-    console.log(event.target.getPlayerState())
+    var newState = event.target.getPlayerState();
+    var roomName = window.location.pathname.split("/")[2];
     console.log(event.target.getCurrentTime())
+    var changeRoom = [newState, roomName]
+    stompClient.send("/app/video", {}, JSON.stringify(changeRoom));
   }
 
   handleSubmit(event){
