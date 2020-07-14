@@ -5,7 +5,7 @@ import axios from 'axios';
 import SockJs from 'sockjs-client';
 import Stomp from 'stompjs';
 
-var   stompClient = null;
+var stompClient = null;
 
 export class Youtube extends Component {
 
@@ -18,6 +18,7 @@ export class Youtube extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.connect = this.connect.bind(this);
     this.getCurrentTime = this.getCurrentTime.bind(this);
+
   }
 
   componentDidMount(){
@@ -27,14 +28,18 @@ export class Youtube extends Component {
   connect() {
     var socket = new SockJs('http://localhost:8080/websocket');
     stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
+    stompClient.connect({}, (frame) => {
         console.log('Connected: ' + frame);
         var roomName = window.location.pathname.split("/")[2];
-        stompClient.subscribe('/topic/video.' + roomName, function (eventBody) {
-            //var obj = (JSON.parse(eventBody.body));
+        stompClient.subscribe('/topic/video.' + roomName, (eventBody) => {
+          console.log(eventBody.body + " RECEIVES THIS VIDEO ID");
+          this.setState({ videoId: eventBody.body}, () => {
+            console.log(this.state.videoId + " NEW THIS VIDEO ID")})
         });
     });
   }
+
+
 
   getCurrentTime(event){
     event.target.getCurrentTime();
@@ -42,8 +47,8 @@ export class Youtube extends Component {
   }
 
   videoOnReady(event) {
-    event.target.pauseVideo();
-    console.log(event.target)
+    //event.target.pauseVideo();
+    //console.log(event.target)
   }
 
   // -1 - unstarted (sin empezar)
@@ -54,9 +59,9 @@ export class Youtube extends Component {
   videoOnStateChange(event){
     var newState = event.target.getPlayerState();
     var roomName = window.location.pathname.split("/")[2];
-    console.log(event.target.getCurrentTime())
+    console.log(event.target.getPlayerState())
     var changeRoom = [newState, roomName]
-    stompClient.send("/app/video", {}, JSON.stringify(changeRoom));
+    //stompClient.send("/app/video", {}, JSON.stringify(changeRoom));
   }
 
   handleSubmit(event){
@@ -65,10 +70,15 @@ export class Youtube extends Component {
     const id = axios.get('http://localhost:8080/video/changeurl?url=' + url)
     .then(id => this.setState({ videoId : id.data })
     );
+    var roomName = window.location.pathname.split("/")[2];
+    var changeIdVideo = [this.state.videoId, roomName];
+    console.log(this.state.videoId + "SEND THIS VIDEO ID");
+    stompClient.send("/app/video", {}, JSON.stringify(changeIdVideo));
   }
 
   handleChangeVideoId(event){
     this.setState({ videoId: event.target.value});
+    console.log(this.state.videoId + " STATE IN BAR");
   }
 
   render() {
@@ -85,7 +95,7 @@ export class Youtube extends Component {
         <div className="w-50 ml-5">
           <br></br>
           <Form onSubmit={this.handleSubmit}>
-            <Input type="text" placeholder="URL" bsSize="lg" name="videoId" onChange={this.handleChangeVideoId} />
+            <Input type="text" placeholder={this.state.videoId} bsSize="lg" name="videoId" onChange={this.handleChangeVideoId} />
             <Button type="submit" className="btn-lg btn-dark btn-block"> Buscar </Button>
           </Form>
 
@@ -94,15 +104,14 @@ export class Youtube extends Component {
         </div>
 
         <div className="ml-5">
-        <YouTube
-          videoId = {this.state.videoId}
-          opts = {opts}
-          onReady = {this.videoOnReady}
-          onStateChange = {this.videoOnStateChange}
-          getCurrentTime = {this.getCurrentTime}
-        />
+          <YouTube
+            videoId = {this.state.videoId}
+            opts = {opts}
+            onReady = {this.videoOnReady}
+            onStateChange = {this.videoOnStateChange}
+            getCurrentTime = {this.getCurrentTime}
+          />
         </div>
-
       </div>
 
     );
