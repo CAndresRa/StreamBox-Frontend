@@ -13,12 +13,19 @@ export class Youtube extends Component {
     super(props)
     this.state = {
       videoId : '',
+      player : null
     }
+
     this.handleChangeVideoId = this.handleChangeVideoId.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.connect = this.connect.bind(this);
     this.getCurrentTime = this.getCurrentTime.bind(this);
+    this.videoOnReady = this.videoOnReady.bind(this);
 
+    this.onPlay = this.onPlay.bind(this);
+    this.onPause = this.onPause.bind(this);
+    this.publishOnPlay = this.publishOnPlay.bind(this);
+    this.publishOnPause = this.publishOnPause.bind(this);
   }
 
   componentDidMount(){
@@ -27,20 +34,25 @@ export class Youtube extends Component {
 
   connect() {
     //http://localhost:8080
-    var socket = new SockJs('https://streamboxback.herokuapp.com/websocket');
+    var socket = new SockJs('http://localhost:8080/websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, (frame) => {
         console.log('Connected: ' + frame);
         var roomName = window.location.pathname.split("/")[2];
         stompClient.subscribe('/topic/video.' + roomName, (eventBody) => {
           console.log(eventBody.body + " RECEIVES THIS VIDEO ID");
-          this.setState({ videoId: eventBody.body}, () => {
-            console.log(this.state.videoId + " NEW THIS VIDEO ID")})
+          if(eventBody.body === "1"){
+            this.publishOnPlay();
+          } else if(eventBody.body === "2"){
+            this.publishOnPause();
+          } else {
+            this.setState({ videoId: eventBody.body}, () => {
+              console.log(this.state.videoId + " NEW THIS VIDEO ID")})
+          }
+
         });
     });
   }
-
-
 
   getCurrentTime(event){
     event.target.getCurrentTime();
@@ -48,8 +60,8 @@ export class Youtube extends Component {
   }
 
   videoOnReady(event) {
-    //event.target.pauseVideo();
-    //console.log(event.target)
+    this.setState({ player : event.target })
+    console.log(this.state.player + " this is the event player")
   }
 
   // -1 - unstarted (sin empezar)
@@ -60,26 +72,59 @@ export class Youtube extends Component {
   videoOnStateChange(event){
     var newState = event.target.getPlayerState();
     var roomName = window.location.pathname.split("/")[2];
-    console.log(event.target.getPlayerState())
+    console.log(event.target.getPlayerState() + " this is the state of video")
     var changeRoom = [newState, roomName]
-    //stompClient.send("/app/video", {}, JSON.stringify(changeRoom));
+
   }
+
+  onPlay(event){
+    const videoStatus = 1;
+    var roomName = window.location.pathname.split("/")[2];
+    var pausedVideo = [videoStatus, roomName];
+    console.log(this.state.videoId + "SEND TO PLAY VIDEO");
+    stompClient.send("/app/video", {}, JSON.stringify(pausedVideo));
+  }
+
+  publishOnPlay(){
+    //this.state.player.seekTo(200, false);
+    this.state.player.playVideo();
+
+  }
+
+  onPause(event){
+    //event.target.onPlay();
+    const videoStatus = 2;
+    var roomName = window.location.pathname.split("/")[2];
+    var pausedVideo = [videoStatus, roomName];
+    console.log(this.state.videoId + "SEND TO PAUSED VIDEO");
+    stompClient.send("/app/video", {}, JSON.stringify(pausedVideo));
+  }
+
+  publishOnPause(){
+    this.state.player.pauseVideo();
+  }
+
+
 
   handleSubmit(event){
     event.preventDefault();
     const url = this.state.videoId;
-    const id = axios.get('https://streamboxback.herokuapp.com/video/changeurl?url=' + url)
-    .then(id => this.setState({ videoId : id.data })
+    const id = axios.get('http://localhost:8080/video/changeurl?url=' + url)
+    .then(id => this.setState({ videoId : id.data }, () => {
+      var roomName = window.location.pathname.split("/")[2];
+      var changeIdVideo = [this.state.videoId, roomName];
+      console.log(this.state.videoId + "SEND THIS VIDEO ID");
+      stompClient.send("/app/video", {}, JSON.stringify(changeIdVideo));
+    })
     );
-    var roomName = window.location.pathname.split("/")[2];
-    var changeIdVideo = [this.state.videoId, roomName];
-    console.log(this.state.videoId + "SEND THIS VIDEO ID");
-    stompClient.send("/app/video", {}, JSON.stringify(changeIdVideo));
+
   }
 
   handleChangeVideoId(event){
+
     this.setState({ videoId: event.target.value});
     console.log(this.state.videoId + " STATE IN BAR");
+
   }
 
   render() {
@@ -87,7 +132,7 @@ export class Youtube extends Component {
       height: '480',
       width: '840',
       playerVars: {
-      autoplay: 1,
+      //autoplay: 1,
       },
     };
 
@@ -96,7 +141,7 @@ export class Youtube extends Component {
         <div className="w-50 ml-5">
           <br></br>
           <Form onSubmit={this.handleSubmit}>
-            <Input type="text" placeholder={this.state.videoId} bsSize="lg" name="videoId" onChange={this.handleChangeVideoId} />
+            <Input type="text" placeholder="URL" bsSize="lg" name="videoId" onChange={this.handleChangeVideoId} />
             <Button type="submit" className="btn-lg btn-dark btn-block"> Buscar </Button>
           </Form>
 
@@ -111,6 +156,8 @@ export class Youtube extends Component {
             onReady = {this.videoOnReady}
             onStateChange = {this.videoOnStateChange}
             getCurrentTime = {this.getCurrentTime}
+            onPlay = { this.onPlay }
+            onPause = { this.onPause }
           />
         </div>
       </div>
