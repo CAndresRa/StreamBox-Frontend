@@ -60,10 +60,10 @@ export class ChatComponent extends Component {
 
   render(){
       return (
-        <div>
+        <div >
           <div >
             <br></br>
-              <Card body inverse style={{ backgroundColor: '#333', borderColor: '#333', width: '24%', height: '600px' }}>
+              <Card body inverse style={{ backgroundColor: '#333', borderColor: '#333', width: '-30', height: '600px' }}>
                 <CardBody>
                   <CardTitle>StreamBox</CardTitle>
                   <div className="scrollable">
@@ -76,7 +76,7 @@ export class ChatComponent extends Component {
                 </CardBody>
               </Card>
               <br></br>
-              <div style = {{ width: '24%'}}>
+              <div >
               <Form onSubmit={this.handleSubmit} id="inputMessages" >
                 <Input type="text" placeholder="Message" bsSize="lg" name="inputMessage" onChange={this.handleChangeMessage} />
                 <Button type="submit" className="btn-lg btn-dark btn-block"> send </Button>

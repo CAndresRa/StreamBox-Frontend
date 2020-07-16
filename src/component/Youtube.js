@@ -125,7 +125,7 @@ export class Youtube extends Component {
   render() {
     const opts = {
       height: '480',
-      width: '840',
+      width: '730',
       playerVars: {
       //autoplay: 1,
       },
@@ -133,7 +133,7 @@ export class Youtube extends Component {
 
     return (
       <div>
-        <div className="w-50 ml-5">
+        <div>
           <br></br>
           <Form onSubmit={this.handleSubmit}>
             <Input type="text" placeholder="URL" bsSize="lg" name="videoId" onChange={this.handleChangeVideoId} />
@@ -144,7 +144,7 @@ export class Youtube extends Component {
           <br></br>
         </div>
 
-        <div className="ml-5">
+        <div>
           <YouTube
             videoId = {this.state.videoId}
             opts = {opts}
