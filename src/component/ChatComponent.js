@@ -28,7 +28,7 @@ export class ChatComponent extends Component {
 
   connect() {
     //http://localhost:8080
-    var socket = new SockJs('https://streamabox.herokuapp.com/websocket');
+    var socket = new SockJs('https://streamboxback.herokuapp.com/websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, (frame) => {
         console.log('Connected: ' + frame);

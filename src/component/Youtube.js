@@ -34,7 +34,7 @@ export class Youtube extends Component {
 
   connect() {
     //http://localhost:8080
-    var socket = new SockJs('https://streamabox.herokuapp.com/websocket');
+    var socket = new SockJs('https://streamboxback.herokuapp.com/websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, (frame) => {
         console.log('Connected: ' + frame);
@@ -107,7 +107,7 @@ export class Youtube extends Component {
   handleSubmit(event){
     event.preventDefault();
     const url = this.state.videoId;
-    const id = axios.get('https://streamabox.herokuapp.com/video/changeurl?url=' + url)
+    const id = axios.get('https://streamboxback.herokuapp.com/video/changeurl?url=' + url)
     .then(id => this.setState({ videoId : id.data }, () => {
       var roomName = window.location.pathname.split("/")[2];
       var changeIdVideo = [this.state.videoId, roomName];
