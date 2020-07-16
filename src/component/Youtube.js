@@ -104,8 +104,6 @@ export class Youtube extends Component {
     this.state.player.pauseVideo();
   }
 
-
-
   handleSubmit(event){
     event.preventDefault();
     const url = this.state.videoId;
@@ -117,14 +115,11 @@ export class Youtube extends Component {
       stompClient.send("/app/video", {}, JSON.stringify(changeIdVideo));
     })
     );
-
   }
 
   handleChangeVideoId(event){
-
     this.setState({ videoId: event.target.value});
     console.log(this.state.videoId + " STATE IN BAR");
-
   }
 
   render() {
