@@ -19,9 +19,11 @@ export class MainPageComponent extends Component {
   handleSubmit(event) {
     event.preventDefault();
     console.log("click");
-    console.log("click");
     const { history } = this.props;
-    history.push('/room/' + this.state.roomName);
+    history.push({
+      pathname: '/room/' + this.state.roomName,
+      userName: this.state.userName,
+    });
   }
 
   handleChangeUsername(event){
@@ -44,11 +46,11 @@ export class MainPageComponent extends Component {
         <Form onSubmit={this.handleSubmit}>
           <FormGroup>
             <Label className="text-white">Nombre</Label>
-            <Input type="text" placeholder="Nombre" name="name" onChange={this.handleChangeUsername}/>
+            <Input type="text" placeholder="Nombre" name="name" required="true" onChange={this.handleChangeUsername}/>
           </FormGroup>
           <FormGroup>
             <Label className="text-white">Room</Label>
-            <Input type="text" placeholder="IdRoom" name="roomName" onChange={this.handleChangeRoomName}/>
+            <Input type="text" placeholder="IdRoom" name="roomName" required="true" onChange={this.handleChangeRoomName}/>
           </FormGroup>
           <Button type="submit" className="btn-lg btn-dark btn-block"> Unirse </Button>
         </Form>

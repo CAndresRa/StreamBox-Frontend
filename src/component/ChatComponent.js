@@ -6,14 +6,19 @@ import Stomp from 'stompjs';
 import '../App.css';
 
 var stompClient = null;
-
+var name = null;
 export class ChatComponent extends Component {
-
 
   constructor(props){
       super(props);
+      if(props.username !== undefined){
+        var name = props.username;
+      }else{
+        var name = 'Anónimo';
+      }
+
       this.state = {
-          username: 'Client',
+          username: name,
           message: '',
           messages: []
       }
@@ -28,7 +33,8 @@ export class ChatComponent extends Component {
 
   connect() {
     //http://localhost:8080
-    var socket = new SockJs('https://streamboxback.herokuapp.com/websocket');
+    //https://streamboxback.herokuapp.com
+    var socket = new SockJs('http://localhost:8080/websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, (frame) => {
         console.log('Connected: ' + frame);
@@ -37,14 +43,13 @@ export class ChatComponent extends Component {
           this.setState(prev => ({
             messages: [...prev.messages, eventBody.body],
           }));
-          // this.state.messages.push ... Never do this
         });
     });
   }
 
   handleSubmit(event){
     event.preventDefault();
-    const newMessage = this.state.username + ' dice: ' + this.state.message +" ";
+    const newMessage = this.state.username + ' : ' + this.state.message +" ";
     var roomName = window.location.pathname.split("/")[2];
     var messageToSend = [newMessage, roomName];
     console.log(this.state.message + "SEND THIS CHAT");
