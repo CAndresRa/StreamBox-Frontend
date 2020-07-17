@@ -44,8 +44,8 @@ export class Youtube extends Component {
           console.log(eventBody.body + " RECEIVES THIS VIDEO ID");
           if(eventBody.body === "1"){
             this.publishOnPlay();
-          } else if(eventBody.body === "2"){
-            this.publishOnPause();
+          } else if(eventBody.body.includes(".")){
+            this.publishOnPause(eventBody.body);
           } else {
             this.setState({ videoId: eventBody.body}, () => {
               console.log(this.state.videoId + " NEW THIS VIDEO ID")})
@@ -71,11 +71,7 @@ export class Youtube extends Component {
   //  2 - paused (en pausa)
   //  3 - buffering (almacenando en búfer)
   videoOnStateChange(event){
-    var newState = event.target.getPlayerState();
-    var roomName = window.location.pathname.split("/")[2];
     console.log(event.target.getPlayerState() + " this is the state of video")
-    var changeRoom = [newState, roomName]
-
   }
 
   onPlay(event){
@@ -93,16 +89,20 @@ export class Youtube extends Component {
   }
 
   onPause(event){
-    //event.target.onPlay();
     const videoStatus = 2;
     var roomName = window.location.pathname.split("/")[2];
-    var pausedVideo = [videoStatus, roomName];
+    var timeOfVideo = this.state.player.getCurrentTime();
+    var pausedVideo = [videoStatus, roomName, timeOfVideo];
     console.log(this.state.videoId + "SEND TO PAUSED VIDEO");
     stompClient.send("/app/video", {}, JSON.stringify(pausedVideo));
   }
 
-  publishOnPause(){
+  publishOnPause(time){
+    var timeUpdate = parseFloat(time);
     this.state.player.pauseVideo();
+    this.state.player.seekTo(timeUpdate, true);
+    
+
   }
 
   //http://localhost:8080
