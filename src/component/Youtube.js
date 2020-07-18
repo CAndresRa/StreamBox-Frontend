@@ -35,7 +35,7 @@ export class Youtube extends Component {
   connect() {
     //http://localhost:8080
     //https://streamboxback.herokuapp.com
-    var socket = new SockJs('http://localhost:8080/websocket');
+    var socket = new SockJs('https://streamboxback.herokuapp.com/websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, (frame) => {
         console.log('Connected: ' + frame);
@@ -83,9 +83,7 @@ export class Youtube extends Component {
   }
 
   publishOnPlay(){
-    //this.state.player.seekTo(200, false);
     this.state.player.playVideo();
-
   }
 
   onPause(event){
@@ -101,7 +99,6 @@ export class Youtube extends Component {
     var timeUpdate = parseFloat(time);
     this.state.player.pauseVideo();
     this.state.player.seekTo(timeUpdate, true);
-    
 
   }
 
@@ -110,7 +107,7 @@ export class Youtube extends Component {
   handleSubmit(event){
     event.preventDefault();
     const url = this.state.videoId;
-    const id = axios.get('http://localhost:8080/video/changeurl?url=' + url)
+    const id = axios.get('https://streamboxback.herokuapp.com/video/changeurl?url=' + url)
     .then(id => this.setState({ videoId : id.data }, () => {
       var roomName = window.location.pathname.split("/")[2];
       var changeIdVideo = [this.state.videoId, roomName];
@@ -136,7 +133,7 @@ export class Youtube extends Component {
 
     return (
       <div>
-        <div>
+
           <br></br>
           <Form onSubmit={this.handleSubmit}>
             <Input type="text" placeholder="URL" bsSize="lg" name="videoId" onChange={this.handleChangeVideoId} />
@@ -144,10 +141,8 @@ export class Youtube extends Component {
           </Form>
 
           <br></br>
-          <br></br>
-        </div>
 
-        <div>
+        <div class="embed-responsive embed-responsive-4by3">
           <YouTube
             videoId = {this.state.videoId}
             opts = {opts}
@@ -159,7 +154,6 @@ export class Youtube extends Component {
           />
         </div>
       </div>
-
     );
   }
 

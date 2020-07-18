@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Form, Input, Button, Card, CardTitle, CardText, CardBody } from 'reactstrap';
+import { Form, Input, Button, Card, CardTitle, CardText, CardBody, InputGroup, InputGroupAddon  } from 'reactstrap';
 import axios from 'axios';
 import SockJs from 'sockjs-client';
 import Stomp from 'stompjs';
@@ -34,7 +34,7 @@ export class ChatComponent extends Component {
   connect() {
     //http://localhost:8080
     //https://streamboxback.herokuapp.com
-    var socket = new SockJs('http://localhost:8080/websocket');
+    var socket = new SockJs('https://streamboxback.herokuapp.com/websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, (frame) => {
         console.log('Connected: ' + frame);
@@ -68,7 +68,7 @@ export class ChatComponent extends Component {
         <div >
           <div >
             <br></br>
-              <Card body inverse style={{ backgroundColor: '#333', borderColor: '#333', width: '-30', height: '600px' }}>
+          <Card body inverse style={{ backgroundColor: '#333', borderColor: '#333', width: '-30', height: '670px' }}>
                 <CardBody>
                   <CardTitle>StreamBox</CardTitle>
                   <div className="scrollable">
@@ -79,14 +79,16 @@ export class ChatComponent extends Component {
                     </CardText>
                   </div>
                 </CardBody>
+                <br></br>
+                <div>
+                <Form onSubmit={this.handleSubmit} id="inputMessages" >
+                  <InputGroup>
+                    <Input type="text" placeholder="Message" bsSize="lg" name="inputMessage" onChange={this.handleChangeMessage} />
+                  <InputGroupAddon addonType="prepend" ><Button type="submit" className="btn-lg btn-dark btn-block"> send </Button></InputGroupAddon>
+                  </InputGroup>
+                </Form>
+                </div>
               </Card>
-              <br></br>
-              <div >
-              <Form onSubmit={this.handleSubmit} id="inputMessages" >
-                <Input type="text" placeholder="Message" bsSize="lg" name="inputMessage" onChange={this.handleChangeMessage} />
-                <Button type="submit" className="btn-lg btn-dark btn-block"> send </Button>
-              </Form>
-              </div>
           </div>
         </div>
       );

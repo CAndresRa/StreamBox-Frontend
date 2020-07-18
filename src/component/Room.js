@@ -8,12 +8,12 @@ export class Room extends Component{
 
   render() {
    return (
-     <Container>
+     <Container >
        <div >
          <div>
            <Row>
              <Col sm={8}><Youtube /></Col>
-           <Col sm={4}><ChatComponent username={this.props.location.userName} /></Col>
+             <Col sm={4}><ChatComponent username={this.props.location.userName} /></Col>
            </Row>
          </div>
        </div>
