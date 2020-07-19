@@ -168,8 +168,6 @@ export class Youtube extends Component {
 
           <br></br>
 
-
-
         <div class="embed-responsive embed-responsive-4by3">
           <YouTube
             videoId = {this.state.videoId}
