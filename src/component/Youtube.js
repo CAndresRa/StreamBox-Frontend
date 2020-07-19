@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import YouTube from 'react-youtube';
-import { Form, Input, Button } from 'reactstrap';
+import { Form, Input, Button, InputGroup, InputGroupAddon } from 'reactstrap';
 import axios from 'axios';
 import SockJs from 'sockjs-client';
 import Stomp from 'stompjs';
@@ -26,10 +26,19 @@ export class Youtube extends Component {
     this.onPause = this.onPause.bind(this);
     this.publishOnPlay = this.publishOnPlay.bind(this);
     this.publishOnPause = this.publishOnPause.bind(this);
+    this.synchronize = this.synchronize.bind(this);
+    this.publishSynchronize = this.publishSynchronize.bind(this);
   }
 
   componentDidMount(){
     this.connect();
+    var roomName = window.location.pathname.split("/")[2];
+    const id = axios.get('https://streamboxback.herokuapp.com/video/videoid?room=' + roomName)
+    .then(id => this.setState({ videoId : id.data }, () => {
+      console.log(this.state.videoId + " THIS VIDEO ID");
+      })
+    );
+
   }
 
   connect() {
@@ -42,11 +51,14 @@ export class Youtube extends Component {
         var roomName = window.location.pathname.split("/")[2];
         stompClient.subscribe('/topic/video.' + roomName, (eventBody) => {
           console.log(eventBody.body + " RECEIVES THIS VIDEO ID");
+
           if(eventBody.body === "1"){
             this.publishOnPlay();
-          } else if(eventBody.body.includes(".")){
+          } else if(eventBody.body.includes(",")){
             this.publishOnPause(eventBody.body);
-          } else {
+          } else if(eventBody.body.includes(".")){
+            this.publishSynchronize(eventBody.body);
+          }else {
             this.setState({ videoId: eventBody.body}, () => {
               console.log(this.state.videoId + " NEW THIS VIDEO ID")})
           }
@@ -96,11 +108,24 @@ export class Youtube extends Component {
   }
 
   publishOnPause(time){
-    var timeUpdate = parseFloat(time);
+    var timeUpdate = parseFloat(time.substring(1));
     this.state.player.pauseVideo();
     this.state.player.seekTo(timeUpdate, true);
-
   }
+
+  synchronize(){
+    const videoStatus = 9
+    var roomName = window.location.pathname.split("/")[2];
+    var timeOfVideo = this.state.player.getCurrentTime();
+    var synchronizeVideo = [videoStatus, roomName, timeOfVideo];
+    stompClient.send("/app/video", {}, JSON.stringify(synchronizeVideo));
+  }
+
+  publishSynchronize(time){
+    var timeUpdate = parseFloat(time);
+    this.state.player.seekTo(timeUpdate, true);
+  }
+
 
   //http://localhost:8080
   //https://streamboxback.herokuapp.com/video
@@ -133,14 +158,17 @@ export class Youtube extends Component {
 
     return (
       <div>
-
           <br></br>
           <Form onSubmit={this.handleSubmit}>
-            <Input type="text" placeholder="URL" bsSize="lg" name="videoId" onChange={this.handleChangeVideoId} />
-            <Button type="submit" className="btn-lg btn-dark btn-block"> Buscar </Button>
+            <InputGroup>
+              <Input type="text" placeholder="URL" bsSize="lg" name="videoId" onChange={this.handleChangeVideoId} />
+              <InputGroupAddon addonType="prepend" ><Button type="submit" className="btn-lg btn-dark btn-block"> Buscar </Button></InputGroupAddon>
+            </InputGroup>
           </Form>
 
           <br></br>
+
+
 
         <div class="embed-responsive embed-responsive-4by3">
           <YouTube
@@ -153,6 +181,7 @@ export class Youtube extends Component {
             onPause = { this.onPause }
           />
         </div>
+        <Button className="btn-lg btn-dark btn-block" color="warning" onClick={this.synchronize}> Sincronizar </Button>
       </div>
     );
   }
