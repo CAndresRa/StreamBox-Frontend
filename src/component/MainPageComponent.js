@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import '../App.css';
 import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
+import Logo from '../Picture1.png';
 
 export class MainPageComponent extends Component {
   constructor(props){
@@ -38,19 +39,20 @@ export class MainPageComponent extends Component {
     return(
       <div className="login-form">
         <h1>
+          <img src={Logo} />
           <span className="font-weight-bold text-center text-white">StreamBox</span>
         </h1>
-        <h3 className="text-center text-white">Crear Sala</h3>
+        <h3 className="text-center text-white">Create / Join a Room</h3>
         <Form onSubmit={this.handleSubmit}>
           <FormGroup>
-            <Label className="text-white">Nombre</Label>
-            <Input type="text" placeholder="Nombre" name="name" required="true" onChange={this.handleChangeUsername}/>
+            <Label className="text-white">Nick</Label>
+            <Input type="text" placeholder="Name" name="name" required="true" onChange={this.handleChangeUsername}/>
           </FormGroup>
           <FormGroup>
             <Label className="text-white">Room</Label>
-            <Input type="text" placeholder="IdRoom" name="roomName" required="true" onChange={this.handleChangeRoomName}/>
+            <Input type="text" placeholder="Id" name="roomName" required="true" onChange={this.handleChangeRoomName}/>
           </FormGroup>
-          <Button type="submit" className="btn-lg btn-dark btn-block"> Unirse </Button>
+          <Button type="submit" className="btn-lg btn-dark btn-block"> Join </Button>
         </Form>
       </div>
     );

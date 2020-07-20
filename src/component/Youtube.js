@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import YouTube from 'react-youtube';
-import { Form, Input, Button, InputGroup, InputGroupAddon } from 'reactstrap';
+import { Form, Input, Button, InputGroup, InputGroupAddon, UncontrolledAlert } from 'reactstrap';
 import axios from 'axios';
 import SockJs from 'sockjs-client';
 import Stomp from 'stompjs';
@@ -33,7 +33,7 @@ export class Youtube extends Component {
   componentDidMount(){
     this.connect();
     var roomName = window.location.pathname.split("/")[2];
-    const id = axios.get('http://localhost:8080/video/videoid?room=' + roomName)
+    const id = axios.get('https://streamboxback.herokuapp.com/video/videoid?room=' + roomName)
     .then(id => this.setState({ videoId : id.data }, () => {
       console.log(this.state.videoId + " THIS VIDEO ID");
       })
@@ -44,7 +44,8 @@ export class Youtube extends Component {
   connect() {
     //http://localhost:8080
     //https://streamboxback.herokuapp.com
-    var socket = new SockJs('http://localhost:8080/websocket');
+    //Connect to endpoint room
+    var socket = new SockJs('https://streamboxback.herokuapp.com/websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, (frame) => {
         console.log('Connected: ' + frame);
@@ -73,6 +74,7 @@ export class Youtube extends Component {
   }
 
   videoOnReady(event) {
+    //if active to video is ready to play
     this.setState({ player : event.target })
     console.log(this.state.player + " this is the event player")
   }
@@ -87,6 +89,7 @@ export class Youtube extends Component {
   }
 
   onPlay(event){
+    //If play video send signal to backend to broadcast
     const videoStatus = 1;
     var roomName = window.location.pathname.split("/")[2];
     var pausedVideo = [videoStatus, roomName];
@@ -95,10 +98,12 @@ export class Youtube extends Component {
   }
 
   publishOnPlay(){
+    //change state in browser
     this.state.player.playVideo();
   }
 
   onPause(event){
+    ////If stop video send signal to backend to broadcast
     const videoStatus = 2;
     var roomName = window.location.pathname.split("/")[2];
     var timeOfVideo = this.state.player.getCurrentTime();
@@ -108,12 +113,14 @@ export class Youtube extends Component {
   }
 
   publishOnPause(time){
+    //change state of video in browser
     var timeUpdate = parseFloat(time.substring(1));
     this.state.player.pauseVideo();
     this.state.player.seekTo(timeUpdate, true);
   }
 
   synchronize(){
+    //broadcast to synchronize video
     const videoStatus = 9
     var roomName = window.location.pathname.split("/")[2];
     var timeOfVideo = this.state.player.getCurrentTime();
@@ -130,9 +137,10 @@ export class Youtube extends Component {
   //http://localhost:8080
   //https://streamboxback.herokuapp.com/video
   handleSubmit(event){
+    //Change video with id of url link of video youtube
     event.preventDefault();
     const url = this.state.videoId;
-    const id = axios.get('http://localhost:8080/video/changeurl?url=' + url)
+    const id = axios.get('https://streamboxback.herokuapp.com/video/changeurl?url=' + url)
     .then(id => this.setState({ videoId : id.data }, () => {
       var roomName = window.location.pathname.split("/")[2];
       var changeIdVideo = [this.state.videoId, roomName];
@@ -162,7 +170,7 @@ export class Youtube extends Component {
           <Form onSubmit={this.handleSubmit}>
             <InputGroup>
               <Input type="text" placeholder="URL" bsSize="lg" name="videoId" onChange={this.handleChangeVideoId} />
-              <InputGroupAddon addonType="prepend" ><Button type="submit" className="btn-lg btn-dark btn-block"> Buscar </Button></InputGroupAddon>
+              <InputGroupAddon addonType="prepend" ><Button type="submit" className="btn-lg btn-dark btn-block"> Search </Button></InputGroupAddon>
             </InputGroup>
           </Form>
 
@@ -179,8 +187,12 @@ export class Youtube extends Component {
             onPause = { this.onPause }
           />
         </div>
-        <Button className="btn-lg btn-dark btn-block" color="warning" onClick={this.synchronize}> Sincronizar </Button>
+        <Button className="btn-lg btn-dark btn-block" color="warning" onClick={this.synchronize}> Synchronize </Button>
+        <UncontrolledAlert color="info">
+            In case of error with the synchronization press  Synchronize button twice to synchronize the whole room.
+        </UncontrolledAlert>
       </div>
+
     );
   }
 

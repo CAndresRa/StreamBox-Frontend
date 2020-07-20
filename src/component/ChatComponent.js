@@ -8,6 +8,7 @@ import '../App.css';
 
 var stompClient = null;
 var name = null;
+
 export class ChatComponent extends Component {
   chatContainer = React.createRef();
   constructor(props){
@@ -33,9 +34,10 @@ export class ChatComponent extends Component {
   }
 
   connect() {
+    //Connect client to endpoint chat
     //http://localhost:8080
     //https://streamboxback.herokuapp.com
-    var socket = new SockJs('http://localhost:8080/websocket');
+    var socket = new SockJs('https://streamboxback.herokuapp.com/websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, (frame) => {
         console.log('Connected: ' + frame);
@@ -50,14 +52,15 @@ export class ChatComponent extends Component {
   }
 
   handleSubmit(event){
+    //Send messages to broadcast in backend
     event.preventDefault();
     if(this.state.message !== ""){
-      const newMessage = this.state.username + ' : ' + this.state.message +" ";
-      var roomName = window.location.pathname.split("/")[2];
-      var messageToSend = [newMessage, roomName];
-      console.log(this.state.message + "SEND THIS CHAT");
-      stompClient.send("/app/chat", {}, JSON.stringify(messageToSend));
-      this.setState({ message: ''});
+        const newMessage = this.state.username + ' : ' + this.state.message +" ";
+        var roomName = window.location.pathname.split("/")[2];
+        var messageToSend = [newMessage, roomName];
+        console.log(this.state.message + "SEND THIS CHAT");
+        stompClient.send("/app/chat", {}, JSON.stringify(messageToSend));
+        this.setState({ message: ''});
       }
       document.getElementById("inputMessages").reset();
   }
