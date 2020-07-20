@@ -1,10 +1,8 @@
 import React, {Component} from 'react';
 import '../App.css';
 import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
-import axios from 'axios';
 
 export class MainPageComponent extends Component {
-
   constructor(props){
     super(props)
     this.state = {
