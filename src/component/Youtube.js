@@ -169,7 +169,7 @@ export class Youtube extends Component {
           <br></br>
           <Form onSubmit={this.handleSubmit}>
             <InputGroup>
-              <Input type="text" placeholder="URL" bsSize="lg" name="videoId" onChange={this.handleChangeVideoId} />
+              <Input type="text" placeholder="Youtube video URL" bsSize="lg" name="videoId" onChange={this.handleChangeVideoId} />
               <InputGroupAddon addonType="prepend" ><Button type="submit" className="btn-lg btn-dark btn-block"> Search </Button></InputGroupAddon>
             </InputGroup>
           </Form>

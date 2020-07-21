@@ -45,12 +45,12 @@ export class MainPageComponent extends Component {
         <h3 className="text-center text-white">Create / Join a Room</h3>
         <Form onSubmit={this.handleSubmit}>
           <FormGroup>
-            <Label className="text-white">Nick</Label>
-            <Input type="text" placeholder="Name" name="name" required="true" onChange={this.handleChangeUsername}/>
+            <Label className="text-white">Nickname</Label>
+          <Input type="text" placeholder="Your Name or Nickname" name="name" required="true" onChange={this.handleChangeUsername}/>
           </FormGroup>
           <FormGroup>
             <Label className="text-white">Room</Label>
-            <Input type="text" placeholder="Id" name="roomName" required="true" onChange={this.handleChangeRoomName}/>
+          <Input type="text" placeholder="Name of the room you create or join" name="roomName" required="true" onChange={this.handleChangeRoomName}/>
           </FormGroup>
           <Button type="submit" className="btn-lg btn-dark btn-block"> Join </Button>
         </Form>
